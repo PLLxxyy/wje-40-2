@@ -69,7 +69,11 @@ export default function TimeSeriesChart({ data, prevClose }: Props) {
   return (
     <div className="flex-1 min-h-0 bg-slate-800/50 p-2">
       <h3 className="text-xs font-semibold text-slate-300 mb-1">分时图</h3>
-      <ReactECharts option={option} style={{ width: '100%', height: 'calc(100% - 20px)' }} />
+      <ReactECharts
+        option={option}
+        notMerge={true}
+        style={{ width: '100%', height: 'calc(100% - 20px)' }}
+      />
     </div>
   );
 }

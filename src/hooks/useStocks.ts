@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Stock, KLineData, TickData, OrderBookLevel, KLinePeriod } from '../types';
-import { generateStocks, updateStocks, generateKLine, generateTicks, generateOrderBook } from '../utils/mockData';
+import { generateStocks, updateStocks, generateKLine, generateTicks, generateOrderBook, appendTick } from '../utils/mockData';
 
 export function useStocks(refreshInterval = 2000) {
   const [stocks, setStocks] = useState<Stock[]>(() => generateStocks());
@@ -9,12 +9,15 @@ export function useStocks(refreshInterval = 2000) {
   const [kline, setKline] = useState<KLineData[]>([]);
   const [ticks, setTicks] = useState<TickData[]>([]);
   const [orderBook, setOrderBook] = useState<{ bids: OrderBookLevel[]; asks: OrderBookLevel[] }>({ bids: [], asks: [] });
+  const ticksRef = useRef<TickData[]>([]);
 
   const selectedStock = stocks.find((s) => s.code === selectedCode) || stocks[0];
 
   useEffect(() => {
     setKline(generateKLine(selectedCode, period));
-    setTicks(generateTicks(selectedCode));
+    const newTicks = generateTicks(selectedCode);
+    setTicks(newTicks);
+    ticksRef.current = newTicks;
     setOrderBook(generateOrderBook(selectedStock?.price || 100));
   }, [selectedCode, period]);
 
@@ -24,6 +27,9 @@ export function useStocks(refreshInterval = 2000) {
       const sel = updated.find((s) => s.code === selectedCode);
       if (sel) {
         setOrderBook(generateOrderBook(sel.price));
+        const newTicks = appendTick(ticksRef.current, sel.price);
+        ticksRef.current = newTicks;
+        setTicks(newTicks);
       }
       return updated;
     });

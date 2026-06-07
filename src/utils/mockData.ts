@@ -129,3 +129,25 @@ export function generateOrderBook(price: number): { bids: OrderBookLevel[]; asks
   }
   return { bids, asks };
 }
+
+export function appendTick(ticks: TickData[], currentPrice: number): TickData[] {
+  const lastTick = ticks[ticks.length - 1];
+  const lastPrice = lastTick ? lastTick.price : currentPrice;
+  const delta = (Math.random() - 0.5) * lastPrice * 0.003;
+  const newPrice = Math.round((lastPrice + delta) * 100) / 100;
+
+  const now = new Date();
+  const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+  const newTick: TickData = {
+    time,
+    price: newPrice,
+    volume: Math.floor(Math.random() * 3000) + 100,
+  };
+
+  const newTicks = [...ticks, newTick];
+  if (newTicks.length > 240) {
+    newTicks.shift();
+  }
+  return newTicks;
+}
