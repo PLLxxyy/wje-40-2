@@ -25,9 +25,11 @@ export function useStocks(refreshInterval = 2000) {
     setStocks((prev) => {
       const updated = updateStocks(prev);
       const sel = updated.find((s) => s.code === selectedCode);
+      const prevSel = prev.find((s) => s.code === selectedCode);
       if (sel) {
         setOrderBook(generateOrderBook(sel.price));
-        const newTicks = appendTick(ticksRef.current, sel.price);
+        const volumeDelta = prevSel ? sel.volume - prevSel.volume : 0;
+        const newTicks = appendTick(ticksRef.current, sel.price, volumeDelta);
         ticksRef.current = newTicks;
         setTicks(newTicks);
       }

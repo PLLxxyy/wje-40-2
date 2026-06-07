@@ -130,19 +130,18 @@ export function generateOrderBook(price: number): { bids: OrderBookLevel[]; asks
   return { bids, asks };
 }
 
-export function appendTick(ticks: TickData[], currentPrice: number): TickData[] {
+export function appendTick(ticks: TickData[], currentPrice: number, volumeDelta: number): TickData[] {
   const lastTick = ticks[ticks.length - 1];
   const lastPrice = lastTick ? lastTick.price : currentPrice;
-  const delta = (Math.random() - 0.5) * lastPrice * 0.003;
-  const newPrice = Math.round((lastPrice + delta) * 100) / 100;
+  const smoothPrice = Math.round((lastPrice * 0.3 + currentPrice * 0.7) * 100) / 100;
 
   const now = new Date();
   const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
   const newTick: TickData = {
     time,
-    price: newPrice,
-    volume: Math.floor(Math.random() * 3000) + 100,
+    price: smoothPrice,
+    volume: Math.max(volumeDelta, Math.floor(Math.random() * 500) + 100),
   };
 
   const newTicks = [...ticks, newTick];
